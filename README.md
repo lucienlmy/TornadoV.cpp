@@ -7,7 +7,7 @@ A high-performance, native C++ rewrite of the TornadoV mod for Grand Theft Auto 
 - **Native Performance**: Built from the ground up in C++ to minimize frame time impact and maximize execution efficiency.
 - **Enhanced Physics Engine**: Completely rewritten force application logic (`ENTITY::APPLY_FORCE_TO_ENTITY`) for more realistic entity pulling, rotation, and lofting.
 - **Seamless UI**: Built-in menu system for real-time configuration of vortex strength, movement, and visual styles.
-- **...and all other features from TornadoV's C# version.
+- ...and all other features from TornadoV's C# version.
 
 ## 🛠️ Technical Improvements (vs. C# Version)
 
