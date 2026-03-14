@@ -64,6 +64,11 @@ Entity TornadoParticle::SafeSetup(Vector3 position) {
     ENTITY::FREEZE_ENTITY_POSITION(prop, false); 
     ENTITY::_0x3910051CCECDB00C(prop, false);
     
+    // CRITICAL FIX: Prevent entity distance culling
+    // This keeps particles active even when far from player or behind objects
+    ENTITY::SET_ENTITY_AS_MISSION_ENTITY(prop, true, true);
+    ENTITY::SET_ENTITY_ALPHA(prop, 0, false);
+    
     return prop;
 }
 

@@ -141,7 +141,20 @@ void TornadoFactory::OnUpdate(int gameTime) {
         if (gameTime - m_spawnDelayStartTime > m_spawnDelayAdditive) {
             Vector3 playerPos = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), true);
             float angle = (float)rand() / RAND_MAX * 6.28318f;
-            float dist = 200.0f + (float)rand() / RAND_MAX * 200.0f;
+            
+            // Use TornadoSpawnDistance setting instead of hardcoded 200-400 range
+            float baseDistance = TornadoMenu::m_tornadoSpawnDistance;
+            float distanceVariation = TornadoMenu::m_tornadoSpawnDistance * 0.5f; // 50% variation
+            float dist = baseDistance + (float)rand() / RAND_MAX * distanceVariation;
+            
+            // If SpawnInFront is true, bias the angle towards the player's forward direction
+            if (TornadoMenu::m_spawnInFront) {
+                Vector3 playerForward = ENTITY::GET_ENTITY_FORWARD_VECTOR(PLAYER::PLAYER_PED_ID());
+                float playerAngle = std::atan2(playerForward.y, playerForward.x);
+                // Bias angle towards player's forward direction with some randomness
+                angle = playerAngle + ((float)rand() / RAND_MAX - 0.5f) * 1.5708f; // ±90 degrees
+            }
+            
             playerPos.x += std::cos(angle) * dist;
             playerPos.y += std::sin(angle) * dist;
 

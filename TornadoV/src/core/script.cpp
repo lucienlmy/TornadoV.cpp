@@ -46,7 +46,10 @@ void Bootstrap() {
     char path[MAX_PATH];
     GetModuleFileNameA(g_hModule, path, MAX_PATH);
     fs::path dllPath(path);
-    fs::path root = dllPath.parent_path() / "TornadoVStuff";
+
+    // Use LOCALAPPDATA for TornadoVStuff to avoid sandboxing on Game Pass
+    char* localappdata = getenv("LOCALAPPDATA");
+    fs::path root = fs::path(localappdata) / "TornadoVStuff";
     fs::path sounds = root / "TornadoVSounds";
 
     fs::create_directories(sounds);
@@ -81,7 +84,10 @@ void ModMain() {
     char path[MAX_PATH];
     GetModuleFileNameA(g_hModule, path, MAX_PATH);
     fs::path dllPath(path);
-    fs::path logPath = dllPath.parent_path() / "TornadoVStuff" / "TornadoV.log";
+
+    // Use LOCALAPPDATA for TornadoVStuff
+    char* localappdata = getenv("LOCALAPPDATA");
+    fs::path logPath = fs::path(localappdata) / "TornadoVStuff" / "TornadoV.log";
     Logger::Initialize(logPath.string());
 
     try {
@@ -96,7 +102,7 @@ void ModMain() {
         AudioManager::Get().Init();
 
         // Load sounds from TornadoVStuff\TornadoVSounds
-        fs::path soundsFolder = dllPath.parent_path() / "TornadoVStuff" / "TornadoVSounds";
+        fs::path soundsFolder = fs::path(localappdata) / "TornadoVStuff" / "TornadoVSounds";
         std::string folder = soundsFolder.string();
         
         AudioManager::Get().LoadSound("tornado_loop", folder + "\\rumble-bass-2.wav");

@@ -12,6 +12,7 @@ public:
 
     static void Initialize(HMODULE hModule = NULL);
     static void DeployDefaultConfig(HMODULE hModule);
+    static void ValidateAndRepairXml();
     
     // Generic value getters
     static std::string GetString(const std::string& path, const std::string& defaultValue = "");

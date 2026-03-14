@@ -83,6 +83,7 @@ public:
     // INI options
     static float m_lodDistance;
     static bool m_drawBlip;
+    static bool m_affectPlayer;
 
     // Physics
     static float m_vortexRadius;
@@ -93,6 +94,12 @@ public:
     static float m_vortexVerticalForceScale;
     static float m_vortexHorizontalForceScale;
     static float m_vortexMaxEntitySpeed;
+
+    // Tornado customization settings
+    static float m_tornadoSpawnDistance;
+    static bool m_followPlayer;
+    static bool m_spawnInFront;
+    static float m_tornadoMaxDistance;
 
     // UI Settings
     static float m_menuX;

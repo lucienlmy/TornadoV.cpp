@@ -251,7 +251,20 @@ void TornadoVortex::CollectNearbyEntities(int gameTime, float maxDistanceDelta) 
                 }
             }
 
-            AddEntity(ActiveEntity(ent, 3.0f * scalarDis(gen), 3.0f * scalarDis(gen), ent == PLAYER::PLAYER_PED_ID()));
+            // Check if this entity is the player (either ped or vehicle player is in)
+            bool isPlayerEntity = false;
+            if (ent == PLAYER::PLAYER_PED_ID()) {
+                isPlayerEntity = true;
+            } else if (ENTITY::IS_ENTITY_A_VEHICLE(ent)) {
+                // Check if player is in this vehicle
+                Ped playerPed = PLAYER::PLAYER_PED_ID();
+                Vehicle playerVehicle = PED::GET_VEHICLE_PED_IS_IN(playerPed, false);
+                if (playerVehicle == ent) {
+                    isPlayerEntity = true;
+                }
+            }
+
+            AddEntity(ActiveEntity(ent, 3.0f * scalarDis(gen), 3.0f * scalarDis(gen), isPlayerEntity));
             addedTotal++;
         }
     };
@@ -334,6 +347,11 @@ void TornadoVortex::UpdatePulledEntities(int gameTime, float maxDistanceDelta) {
         float verticalForce = _cachedVerticalForce;
         float horizontalForce = _cachedHorizontalForce;
 
+        // Skip affecting player if the setting is disabled - this must check BEFORE any forces are applied
+        if (value.isPlayer && !TornadoMenu::m_affectPlayer) {
+            continue;
+        }
+
         if (value.isPlayer) {
             verticalForce *= 1.62f;
             horizontalForce *= 1.2f;
@@ -407,13 +425,11 @@ void TornadoVortex::OnUpdate(int gameTime) {
 
     if (TornadoMenu::m_movementEnabled) {
         if ((_destination.x == 0 && _destination.y == 0) || MathEx::Distance(_position, _destination) < 15.0f)
-            ChangeDestination(false);
+            ChangeDestination(TornadoMenu::m_followPlayer);  // Follow based on setting, not distance
 
-        Ped playerPed = PLAYER::PLAYER_PED_ID();
-        Vector3 playerPos = ENTITY::GET_ENTITY_COORDS(playerPed, true);
-        if (MathEx::Distance(_position, playerPos) > 200.0f)
-            ChangeDestination(true);
-
+        // REMOVE distance check - let FollowPlayer setting control behavior
+        // Tornado should either follow always or never follow, not just when far
+        
         Vector3 vTarget = MathEx::MoveTowards(_position, _destination, TornadoMenu::m_moveSpeedScale * 0.287f);
         _position = MathEx::Lerp(_position, vTarget, GAMEPLAY::GET_FRAME_TIME() * 20.0f);
     }

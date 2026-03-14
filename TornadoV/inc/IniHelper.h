@@ -7,6 +7,7 @@ class IniHelper {
 public:
     static void Initialize(HMODULE hModule = NULL);
     static void DeployDefaultConfig(HMODULE hModule);
+    static void ValidateAndRepairConfig();
     
     static void WriteValue(const std::string& section, const std::string& key, const std::string& value);
     

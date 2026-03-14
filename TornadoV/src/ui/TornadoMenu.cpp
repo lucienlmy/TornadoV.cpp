@@ -45,6 +45,7 @@ DWORD TornadoMenu::m_tornadoHotkey = VK_F6;
 
 float TornadoMenu::m_lodDistance = 500.0f;
 bool TornadoMenu::m_drawBlip = true;
+bool TornadoMenu::m_affectPlayer = true;
 
 float TornadoMenu::m_vortexRadius = 9.4f;
 int TornadoMenu::m_particlesPerLayer = 9;
@@ -54,6 +55,10 @@ float TornadoMenu::m_rotationSpeed = 2.4f;
 float TornadoMenu::m_vortexVerticalForceScale = 2.29f;
 float TornadoMenu::m_vortexHorizontalForceScale = 1.7f;
 float TornadoMenu::m_vortexMaxEntitySpeed = 40.0f;
+float TornadoMenu::m_tornadoSpawnDistance = 100.0f;
+bool TornadoMenu::m_followPlayer = true;
+bool TornadoMenu::m_spawnInFront = true;
+float TornadoMenu::m_tornadoMaxDistance = 1000.0f;
 
 float TornadoMenu::m_menuX = 0.15f;
 float TornadoMenu::m_menuY = 0.1f;
@@ -119,9 +124,14 @@ void TornadoMenu::Initialize() {
     m_vortexVerticalForceScale = IniHelper::GetValue("Vortex", "VerticalForceScale", 2.29f);
     m_vortexHorizontalForceScale = IniHelper::GetValue("Vortex", "HorizontalForceScale", 1.7f);
     m_vortexMaxEntitySpeed = IniHelper::GetValue("Vortex", "MaxEntitySpeed", 40.0f);
+    m_tornadoSpawnDistance = IniHelper::GetValue("Vortex", "TornadoSpawnDistance", 100.0f);
+    m_followPlayer = IniHelper::GetValue("Vortex", "FollowPlayer", true);
+    m_spawnInFront = IniHelper::GetValue("Vortex", "SpawnInFront", true);
+    m_tornadoMaxDistance = IniHelper::GetValue("Vortex", "TornadoMaxDistance", 1000.0f);
 
     m_notifications = IniHelper::GetValue("Other", "Notifications", true);
     m_spawnInStorm = IniHelper::GetValue("Other", "SpawnInStorm", true);
+    m_affectPlayer = IniHelper::GetValue("Other", "AffectPlayer", true);
     m_enableEAS = IniHelper::GetValue("Other", "EnableEAS", true);
     m_enableSirens = IniHelper::GetValue("Other", "EnableSirens", true);
     m_enableTornadoSound = IniHelper::GetValue("Other", "EnableTornadoSound", true);
@@ -236,6 +246,20 @@ void TornadoMenu::SetupMenus() {
         IniHelper::WriteValue("Vortex", "ReverseRotation", m_reverseRotation ? "true" : "false");
     }));
 
+    // Tornado Customization Settings
+    tornado.items.push_back(MenuItem("Tornado Spawn Distance", &m_tornadoSpawnDistance, 20.0f, 500.0f, 5.0f, []() {
+        IniHelper::WriteValue("Vortex", "TornadoSpawnDistance", std::to_string(m_tornadoSpawnDistance));
+    }));
+    tornado.items.push_back(MenuItem("Follow Player", &m_followPlayer, []() {
+        IniHelper::WriteValue("Vortex", "FollowPlayer", m_followPlayer ? "true" : "false");
+    }));
+    tornado.items.push_back(MenuItem("Spawn In-Front", &m_spawnInFront, []() {
+        IniHelper::WriteValue("Vortex", "SpawnInFront", m_spawnInFront ? "true" : "false");
+    }));
+    tornado.items.push_back(MenuItem("Tornado Max Distance", &m_tornadoMaxDistance, 200.0f, 2000.0f, 50.0f, []() {
+        IniHelper::WriteValue("Vortex", "TornadoMaxDistance", std::to_string(m_tornadoMaxDistance));
+    }));
+
     // [VortexAdvanced] Section
     tornado.items.push_back(MenuItem("Max Particle Layers", &m_maxParticleLayers, 1, 200, 1, []() {
         IniHelper::WriteValue("VortexAdvanced", "MaxParticleLayers", std::to_string(m_maxParticleLayers));
@@ -273,12 +297,17 @@ void TornadoMenu::SetupMenus() {
     general.items.push_back(MenuItem("Spawn In Storm", &m_spawnInStorm, []() {
         IniHelper::WriteValue("Other", "SpawnInStorm", m_spawnInStorm ? "true" : "false");
     }));
+    general.items.push_back(MenuItem("Affect Player", &m_affectPlayer, []() {
+        IniHelper::WriteValue("Other", "AffectPlayer", m_affectPlayer ? "true" : "false");
+    }));
     general.items.push_back(MenuItem("LOD Distance", &m_lodDistance, 100.0f, 2000.0f, m_floatStep, []() {
         IniHelper::WriteValue("Other", "LodDistance", std::to_string(m_lodDistance));
     }));
     general.items.push_back(MenuItem("Add Blip", &m_drawBlip, []() {
         IniHelper::WriteValue("Other", "AddBlip", m_drawBlip ? "true" : "false");
     }));
+    
+    // Note: No manual repair buttons needed - auto-repair handles everything
     
     std::string menuKeyName = KeyToString(m_toggleKey);
     general.items.push_back(MenuItem("Toggle Menu: " + menuKeyName, [menuKeyName]() {
@@ -773,12 +802,12 @@ void TornadoMenu::HandleInput() {
         const MenuItem& item = current.items[m_currentOption];
         if (item.type == MenuItemType::Int) {
             *item.intValue -= item.stepInt;
-            if (*item.intValue < item.minInt) *item.intValue = item.maxInt;
+            if (*item.intValue < item.minInt) *item.intValue = item.minInt;
             if (item.action) item.action();
             AUDIO::PLAY_SOUND_FRONTEND(-1, const_cast<char*>("NAV_UP_DOWN"), const_cast<char*>("HUD_FRONTEND_DEFAULT_SOUNDSET"), true);
         } else if (item.type == MenuItemType::Float) {
             *item.floatValue -= item.stepFloat;
-            if (*item.floatValue < item.minFloat) *item.floatValue = item.maxFloat;
+            if (*item.floatValue < item.minFloat) *item.floatValue = item.minFloat;
             if (item.action) item.action();
             AUDIO::PLAY_SOUND_FRONTEND(-1, const_cast<char*>("NAV_UP_DOWN"), const_cast<char*>("HUD_FRONTEND_DEFAULT_SOUNDSET"), true);
         }
@@ -820,9 +849,20 @@ void TornadoMenu::SpawnTornado() {
 
     Ped playerPed = PLAYER::PLAYER_PED_ID();
     Vector3 playerPos = ENTITY::GET_ENTITY_COORDS(playerPed, true);
-    Vector3 forward = ENTITY::GET_ENTITY_FORWARD_VECTOR(playerPed);
     
-    Vector3 spawnPos = MathEx::Add(playerPos, MathEx::Multiply(forward, 180.0f));
+    Vector3 spawnPos;
+    
+    if (m_spawnInFront) {
+        // Spawn in front of player
+        Vector3 forward = ENTITY::GET_ENTITY_FORWARD_VECTOR(playerPed);
+        spawnPos = MathEx::Add(playerPos, MathEx::Multiply(forward, m_tornadoSpawnDistance));
+    } else {
+        // Spawn at random position around player
+        float angle = (float)rand() / RAND_MAX * 6.28318f;
+        spawnPos.x = playerPos.x + std::cos(angle) * m_tornadoSpawnDistance;
+        spawnPos.y = playerPos.y + std::sin(angle) * m_tornadoSpawnDistance;
+        spawnPos.z = playerPos.z;
+    }
     
     Logger::Log("Menu: Calling CreateVortex...");
     if (g_Factory->CreateVortex(spawnPos)) {
