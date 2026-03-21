@@ -171,6 +171,12 @@
     <ClInclude Include="ThirdParty\SoLoud\src\wav\stb_vorbis.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="inc\XmlHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\tinyxml2\tinyxml2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\physics\TornadoFactory.cpp">
@@ -279,6 +285,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ThirdParty\SoLoud\src\wav\stb_vorbis.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\XmlHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
