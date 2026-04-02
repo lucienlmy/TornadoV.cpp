@@ -289,7 +289,7 @@ void TornadoMenu::SetupMenus() {
 
     // General Settings (Index 2)
     Submenu general;
-    general.title = "Tornado V Enhanced";
+    general.title = "TornadoV General Settings";
     general.subtitle = "General Settings";
     general.items.push_back(MenuItem("Notifications", &m_notifications, []() {
         IniHelper::WriteValue("Other", "Notifications", m_notifications ? "true" : "false");
@@ -332,7 +332,7 @@ void TornadoMenu::SetupMenus() {
 
     // Menu Settings (Index 5)
     Submenu menuSettings;
-    menuSettings.title = "TornadoV++";
+    menuSettings.title = "TornadoV Menu Settings";
     menuSettings.subtitle = "Menu Settings";
     
     menuSettings.items.push_back(MenuItem("Menu X", &m_menuX, 0.0f, 1.0f, m_pixelX, []() {
@@ -439,7 +439,7 @@ void TornadoMenu::SetupMenus() {
 
     // Sound Options (Index 4)
     Submenu sound;
-    sound.title = "Tornado V Enhanced";
+    sound.title = "TornadoV Sound Settings";
     sound.subtitle = "Sound Options";
     sound.items.push_back(MenuItem("Enable Tornado Sound", &m_enableTornadoSound, []() {
         IniHelper::WriteValue("Other", "EnableTornadoSound", m_enableTornadoSound ? "true" : "false");
@@ -867,9 +867,6 @@ void TornadoMenu::SpawnTornado() {
     Logger::Log("Menu: Calling CreateVortex...");
     if (g_Factory->CreateVortex(spawnPos)) {
         Logger::Log("Menu: CreateVortex succeeded.");
-        if (m_notifications) {
-            IniHelper::ShowNotification("Tornado spawned!");
-        }
     } else {
         Logger::Log("Menu: CreateVortex failed (likely cooldown or already spawning).");
         if (m_notifications) {

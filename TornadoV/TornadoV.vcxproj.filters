@@ -306,10 +306,10 @@
     <Media Include="Resources\Sounds\eas_alert.wav">
       <Filter>Resource Files</Filter>
     </Media>
-    <Media Include="Resources\Sounds\tornado-weather-alert.wav">
+    <Media Include="Resources\Sounds\rumble-bass-2.wav">
       <Filter>Resource Files</Filter>
     </Media>
-    <Media Include="Resources\Sounds\rumble-bass-2.wav">
+    <Media Include="Resources\Sounds\tornado-weather-alert.wav">
       <Filter>Resource Files</Filter>
     </Media>
   </ItemGroup>

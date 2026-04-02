@@ -281,7 +281,6 @@ void TornadoVortex::CollectNearbyEntities(int gameTime, float maxDistanceDelta) 
         processPool(worldGetAllObjects(entities, POOL_SIZE));
     }
 
-    // Dynamic update rate: C++ can handle much faster scanning than C#
     // 50ms (20 times per second) provides a near-instant response
     int nextUpdateDelay = 50; 
     if (_pulledEntities.size() >= MaxEntityCount) nextUpdateDelay = 1000;
@@ -302,7 +301,7 @@ void TornadoVortex::UpdatePulledEntities(int gameTime, float maxDistanceDelta) {
     }
 
     int processedCount = 0;
-    const int MAX_ENTITIES_PER_FRAME = 500; // Increased for C++ performance, ensures we process all entities in most cases
+    const int MAX_ENTITIES_PER_FRAME = 500;
 
     static std::mt19937 gen(std::random_device{}());
     std::uniform_real_distribution<float> floatDis(0.0f, 1.0f);
@@ -328,9 +327,6 @@ void TornadoVortex::UpdatePulledEntities(int gameTime, float maxDistanceDelta) {
             continue;
         }
 
-        // OPTIMIZATION: Limit expensive physics calculations per frame if we have many entities
-        // However, we MUST NOT break the loop here, because we still need to check the remaining
-        // entities for the existence/range cleanup above.
         if (processedCount >= MAX_ENTITIES_PER_FRAME) continue;
         processedCount++;
 
@@ -375,11 +371,6 @@ void TornadoVortex::UpdatePulledEntities(int gameTime, float maxDistanceDelta) {
             verticalForce *= 6.0f;
         }
 
-        // SHV APPLY_FORCE_TO_ENTITY: matches SHVDN ApplyForce (p10=false, p11=true)
-        // Force type 1 is Force, type 3 is Impulse. C# uses type 1 for ApplyForce in some contexts but let's check Helpers.
-        // Actually, suction might need a stronger kick - let's try 3 (impulse) if 1 (force) is too weak, 
-        // but C# ScriptHookVDotNet's ApplyForce usually maps to type 3 if impulse is true.
-        // TVortex.cs uses entity.ApplyForce which is type 1 by default in SHVDN unless specified.
         ENTITY::APPLY_FORCE_TO_ENTITY(entity, 3, direction.x * horizontalForce, direction.y * horizontalForce, direction.z * horizontalForce, 
                                      floatDis(gen), 0.0f, scalarDis(gen), 0, false, true, true, false, true);
         

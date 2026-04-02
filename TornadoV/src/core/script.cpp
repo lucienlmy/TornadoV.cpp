@@ -115,7 +115,7 @@ void ModMain() {
         
         Logger::Log("Tornado V Enhanced initialized successfully.");
         
-        IniHelper::ShowNotification("~g~Tornado V Enhanced Loaded! Press F5 for Menu.");
+        IniHelper::ShowNotification("~g~TornadoV Loaded! Made by BlueIsAtlantic");
 
         while (true) {
             try {
