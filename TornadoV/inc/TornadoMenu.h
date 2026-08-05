@@ -25,22 +25,27 @@ struct MenuItem {
     int targetSubmenu;
     std::function<void()> action;
 
-    MenuItem(std::string t, std::function<void()> a) 
-        : text(t), type(MenuItemType::Button), checkboxValue(nullptr), intValue(nullptr), floatValue(nullptr), targetSubmenu(-1), action(a) {}
-    
-    MenuItem(std::string t, bool* val, std::function<void()> a = nullptr) 
-        : text(t), type(MenuItemType::Checkbox), checkboxValue(val), intValue(nullptr), floatValue(nullptr), targetSubmenu(-1), action(a) {}
+    MenuItem(std::string t, std::function<void()> a)
+        : text(t), type(MenuItemType::Button), checkboxValue(nullptr), intValue(nullptr), floatValue(nullptr), targetSubmenu(-1), action(a) {
+    }
 
-    MenuItem(std::string t, int submenu) 
-        : text(t), type(MenuItemType::Submenu), checkboxValue(nullptr), intValue(nullptr), floatValue(nullptr), targetSubmenu(submenu), action(nullptr) {}
+    MenuItem(std::string t, bool* val, std::function<void()> a = nullptr)
+        : text(t), type(MenuItemType::Checkbox), checkboxValue(val), intValue(nullptr), floatValue(nullptr), targetSubmenu(-1), action(a) {
+    }
+
+    MenuItem(std::string t, int submenu)
+        : text(t), type(MenuItemType::Submenu), checkboxValue(nullptr), intValue(nullptr), floatValue(nullptr), targetSubmenu(submenu), action(nullptr) {
+    }
 
     MenuItem(std::string t, int* val, int min, int max, int step, std::function<void()> a = nullptr)
-        : text(t), type(MenuItemType::Int), checkboxValue(nullptr), intValue(val), floatValue(nullptr), 
-          minInt(min), maxInt(max), stepInt(step), targetSubmenu(-1), action(a) {}
+        : text(t), type(MenuItemType::Int), checkboxValue(nullptr), intValue(val), floatValue(nullptr),
+        minInt(min), maxInt(max), stepInt(step), targetSubmenu(-1), action(a) {
+    }
 
     MenuItem(std::string t, float* val, float min, float max, float step, std::function<void()> a = nullptr)
-        : text(t), type(MenuItemType::Float), checkboxValue(nullptr), intValue(nullptr), floatValue(val), 
-          minFloat(min), maxFloat(max), stepFloat(step), targetSubmenu(-1), action(a) {}
+        : text(t), type(MenuItemType::Float), checkboxValue(nullptr), intValue(nullptr), floatValue(val),
+        minFloat(min), maxFloat(max), stepFloat(step), targetSubmenu(-1), action(a) {
+    }
 };
 
 struct Submenu {
@@ -54,7 +59,7 @@ public:
     static void Initialize();
     static void OnTick();
     static void OnKeyDown(DWORD key);
-    
+
     static bool IsVisible() { return m_visible; }
     static void SetVisible(bool visible) { m_visible = visible; }
 
@@ -118,7 +123,7 @@ private:
     static void HandleInput();
     static void DrawRect(float x, float y, float width, float height, int r, int g, int b, int a);
     static void DrawText(std::string text, float x, float y, float scale, int font, int r, int g, int b, int a, bool center = false, bool right = false, bool outline = false);
-    
+
     static void SetupMenus();
     static bool IsKeyDownWithRepeat(DWORD key);
     static void CheckResolution();
@@ -139,7 +144,7 @@ private:
     static int m_scrollOffset;
     static const int MAX_VISIBLE_OPTIONS = 10;
     static std::vector<Submenu> m_submenus;
-    
+
     static int m_lastScreenWidth;
     static int m_lastScreenHeight;
     static float m_pixelX;

@@ -62,12 +62,14 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AdditionalIncludeDirectories>B:\TornadoV\TornadoVSHV\Necessities\ScriptHookV_SDK_1.0.617.1a\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>ScriptHookV.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>B:\TornadoV\TornadoVSHV\Necessities\ScriptHookV_SDK_1.0.617.1a\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -81,12 +83,14 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AdditionalIncludeDirectories>B:\TornadoV\TornadoVSHV\Necessities\ScriptHookV_SDK_1.0.617.1a\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>ScriptHookV.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>B:\TornadoV\TornadoVSHV\Necessities\ScriptHookV_SDK_1.0.617.1a\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -101,6 +105,7 @@
     <ClInclude Include="inc\TornadoMenu.h" />
     <ClInclude Include="inc\TornadoParticle.h" />
     <ClInclude Include="inc\TornadoVortex.h" />
+    <ClInclude Include="inc\World.h" />
     <ClInclude Include="inc\XmlHelper.h" />
     <ClInclude Include="inc\AudioManager.h" />
     <ClInclude Include="inc\resource.h" />
@@ -162,6 +167,7 @@
     <ClCompile Include="src\utils\LoopedParticle.cpp" />
     <ClCompile Include="src\utils\MathEx.cpp" />
     <ClCompile Include="src\utils\XmlHelper.cpp" />
+    <ClCompile Include="src\World.cpp" />
     <ClCompile Include="ThirdParty\SoLoud\src\backend\winmm\soloud_winmm.cpp" />
     <ClCompile Include="ThirdParty\SoLoud\src\core\soloud.cpp" />
     <ClCompile Include="ThirdParty\SoLoud\src\core\soloud_audiosource.cpp" />
