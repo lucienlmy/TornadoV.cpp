@@ -1,5 +1,3 @@
-![Logo]([https://imgur.com/ln4NbBU))
-
 # TornadoV.cpp (TornadoV++)
 
 A high-performance, native C++ rewrite of the TornadoV mod for Grand Theft Auto V. Marketed as **TornadoV++**, this project is a complete overhaul of the original C# implementation.
