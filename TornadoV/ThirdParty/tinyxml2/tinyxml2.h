@@ -42,10 +42,19 @@ public:
         return nullptr;
     }
 
+    void SetText(const char* text) {
+        textContent = text ? text : "";
+    }
+
+    void DeleteAttribute(const char* attr) {
+        attributes.erase(attr);
+    }
+
     std::string name;
     std::map<std::string, std::string> attributes;
     std::vector<XMLElement*> children;
     XMLElement* parent = nullptr;
+    std::string textContent;
 
     ~XMLElement() {
         for (auto child : children) delete child;
@@ -82,14 +91,20 @@ private:
         for (auto const& [key, val] : element->attributes) {
             os << " " << key << "=\"" << val << "\"";
         }
-        if (element->children.empty()) {
+        if (element->children.empty() && element->textContent.empty()) {
             os << " />\n";
         } else {
-            os << ">\n";
-            for (auto child : element->children) {
-                Serialize(os, child, indent + 1);
+            os << ">";
+            if (!element->textContent.empty()) {
+                os << element->textContent;
             }
-            for (int i = 0; i < indent; ++i) os << "  ";
+            if (!element->children.empty()) {
+                os << "\n";
+                for (auto child : element->children) {
+                    Serialize(os, child, indent + 1);
+                }
+                for (int i = 0; i < indent; ++i) os << "  ";
+            }
             os << "</" << element->name << ">\n";
         }
     }
@@ -158,6 +173,18 @@ private:
 
             if (!selfClosing) {
                 current = element;
+                // Check for text content before closing tag
+                size_t nextOpen = xml.find('<', end + 1);
+                size_t closeStart = xml.find("</", end + 1);
+                if (closeStart != std::string::npos && (nextOpen == std::string::npos || closeStart < nextOpen)) {
+                    std::string text = xml.substr(end + 1, closeStart - (end + 1));
+                    // Trim whitespace
+                    size_t start = text.find_first_not_of(" \t\n\r");
+                    size_t endText = text.find_last_not_of(" \t\n\r");
+                    if (start != std::string::npos) {
+                        element->textContent = text.substr(start, endText - start + 1);
+                    }
+                }
             }
             pos = end + 1;
         }

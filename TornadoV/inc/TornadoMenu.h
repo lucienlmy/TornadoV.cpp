@@ -67,8 +67,6 @@ public:
     static bool m_movementEnabled;
     static bool m_reverseRotation;
     static bool m_cloudTopEnabled;
-    static bool m_cloudTopParticlesEnabled;
-    static bool m_surfaceDetectionEnabled;
     static bool m_useInternalPool;
     static bool m_particleMod;
     static bool m_notifications;
@@ -86,7 +84,6 @@ public:
     static DWORD m_tornadoHotkey;
 
     // INI options
-    static float m_lodDistance;
     static bool m_drawBlip;
     static bool m_affectPlayer;
 

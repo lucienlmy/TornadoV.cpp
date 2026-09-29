@@ -1,31 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                        TornadoV Menu Configuration                           ║
+║                                                                              ║
+║  This file controls the appearance and behavior of the TornadoV menu.        ║
+║  Edit the values below to customize your menu experience.                    ║
+║                                                                              ║
+║  Color Format: RGB values (0-255)                                            ║
+║  - 0,0,0 = Black  | 255,255,255 = White  | 255,0,0 = Red                     ║
+║  - 0,255,0 = Green | 0,0,255 = Blue     | 255,255,0 = Yellow                 ║
+║                                                                              ║
+║  Position Format: 0.0-1.0 (screen percentage)                                ║ 
+║  - 0.0 = Left/Top  | 0.5 = Center  | 1.0 = Right/Bottom                      ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+-->
 <MenuConfig>
-    <!-- Frame Styling -->
+    <!-- ═════════════════════════════════════════════════════════════════════
+         FRAME STYLING - Controls the menu's visual appearance
+         ═════════════════════════════════════════════════════════════════════ -->
     <Frame>
-        <TitleBox r="184" g="162" b="57" a="255" />
-        <SubtitleBox r="0" g="0" b="0" a="255" />
-        <Background r="0" g="0" b="0" a="200" />
-        <SelectionBar r="255" g="255" b="255" a="255" />
+        <!-- Title Box: The colored header bar at the top of the menu -->
+        <TitleBox>
+            <red value="184"></red>      <!-- Red component (0-255) -->
+            <green value="162"></green>  <!-- Green component (0-255) -->
+            <blue value="57"></blue>      <!-- Blue component (0-255) -->
+            <alpha value="255"></alpha>  <!-- Transparency (0=transparent, 255=opaque) -->
+            <!-- Current color: Golden yellow theme -->
+        </TitleBox>
+        
+        <!-- Subtitle Box: The smaller bar below the title -->
+        <SubtitleBox>
+            <red value="0"></red>
+            <green value="0"></green>
+            <blue value="0"></blue>
+            <alpha value="255"></alpha>
+            <!-- Current color: Black -->
+        </SubtitleBox>
+        
+        <!-- Background: The main menu background -->
+        <Background>
+            <red value="0"></red>
+            <green value="0"></green>
+            <blue value="0"></blue>
+            <alpha value="200"></alpha>
+            <!-- Current color: Semi-transparent black -->
+        </Background>
+        
+        <!-- Selection Bar: The highlight bar showing the selected option -->
+        <SelectionBar>
+            <red value="255"></red>
+            <green value="255"></green>
+            <blue value="255"></blue>
+            <alpha value="255"></alpha>
+            <!-- Current color: White -->
+        </SelectionBar>
     </Frame>
     
-    <!-- Text Styling -->
+    <!-- ═════════════════════════════════════════════════════════════════════
+         TEXT COLORS - Controls text appearance throughout the menu
+         ═════════════════════════════════════════════════════════════════════ -->
     <TextColors>
-        <TitleText r="255" g="255" b="255" a="255" />
-        <SubtitleText r="184" g="162" b="57" a="255" />
-        <CountText r="184" g="162" b="57" a="255" />
-        <OptionNormal r="255" g="255" b="255" a="255" />
-        <OptionSelected r="0" g="0" b="0" a="255" />
+        <!-- Title Text: The main menu title text -->
+        <TitleText>
+            <red value="255"></red>
+            <green value="255"></green>
+            <blue value="255"></blue>
+            <alpha value="255"></alpha>
+            <!-- Current color: White -->
+        </TitleText>
+        
+        <!-- Subtitle Text: The subtitle text below the title -->
+        <SubtitleText>
+            <red value="184"></red>
+            <green value="162"></green>
+            <blue value="57"></blue>
+            <alpha value="255"></alpha>
+            <!-- Current color: Golden yellow (matches title box) -->
+        </SubtitleText>
+        
+        <!-- Count Text: The option counter text (e.g., "1/10") -->
+        <CountText>
+            <red value="184"></red>
+            <green value="162"></green>
+            <blue value="57"></blue>
+            <alpha value="255"></alpha>
+            <!-- Current color: Golden yellow -->
+        </CountText>
+        
+        <!-- Option Normal: Regular menu option text -->
+        <OptionNormal>
+            <red value="255"></red>
+            <green value="255"></green>
+            <blue value="255"></blue>
+            <alpha value="255"></alpha>
+            <!-- Current color: White -->
+        </OptionNormal>
+        
+        <!-- Option Selected: Currently selected menu option text -->
+        <OptionSelected>
+            <red value="0"></red>
+            <green value="0"></green>
+            <blue value="0"></blue>
+            <alpha value="255"></alpha>
+            <!-- Current color: Black (for contrast on white selection bar) -->
+        </OptionSelected>
     </TextColors>
     
-    <!-- Layout Settings -->
+    <!-- ═════════════════════════════════════════════════════════════════════
+         LAYOUT SETTINGS - Controls menu position on screen
+         ═════════════════════════════════════════════════════════════════════ -->
     <Layout>
-        <X>0.15</X>
-        <Y>0.10</Y>
+        <!-- X Position: Horizontal position (0.0=left, 1.0=right) -->
+        <horizontal_position value="0.15"></horizontal_position>
+        
+        <!-- Y Position: Vertical position (0.0=top, 1.0=bottom) -->
+        <vertical_position value="0.10"></vertical_position>
     </Layout>
 
-    <!-- General Settings -->
+    <!-- ═════════════════════════════════════════════════════════════════════
+         GENERAL SETTINGS - Controls menu behavior
+         ═════════════════════════════════════════════════════════════════════ -->
     <General>
-        <IntStep value="5" />
-        <FloatStep value="0.1" />
+        <!-- Int Step: How much integer values change when pressing arrow keys -->
+        <integer_step value="5"></integer_step>
+        
+        <!-- Float Step: How much decimal values change when pressing arrow keys -->
+        <float_step value="0.1"></float_step>
     </General>
 </MenuConfig>

@@ -25,8 +25,6 @@ int TornadoMenu::m_repeatCount = 0;
 bool TornadoMenu::m_movementEnabled = true;
 bool TornadoMenu::m_reverseRotation = false;
 bool TornadoMenu::m_cloudTopEnabled = false;
-bool TornadoMenu::m_cloudTopParticlesEnabled = false;
-bool TornadoMenu::m_surfaceDetectionEnabled = true;
 bool TornadoMenu::m_useInternalPool = true;
 bool TornadoMenu::m_particleMod = true;
 bool TornadoMenu::m_notifications = true;
@@ -43,7 +41,6 @@ int TornadoMenu::m_maxEntityCount = 200;
 DWORD TornadoMenu::m_toggleKey = VK_F5;
 DWORD TornadoMenu::m_tornadoHotkey = VK_F6;
 
-float TornadoMenu::m_lodDistance = 500.0f;
 bool TornadoMenu::m_drawBlip = true;
 bool TornadoMenu::m_affectPlayer = true;
 
@@ -107,8 +104,6 @@ void TornadoMenu::Initialize() {
     m_movementEnabled = IniHelper::GetValue("Vortex", "MovementEnabled", true);
     m_reverseRotation = IniHelper::GetValue("Vortex", "ReverseRotation", false);
     m_cloudTopEnabled = IniHelper::GetValue("VortexAdvanced", "CloudTopEnabled", true);
-    m_cloudTopParticlesEnabled = IniHelper::GetValue("VortexAdvanced", "CloudTopParticlesEnabled", true);
-    m_surfaceDetectionEnabled = IniHelper::GetValue("VortexAdvanced", "SurfaceDetectionEnabled", true);
     m_useInternalPool = IniHelper::GetValue("VortexAdvanced", "UseInternalPool", true);
     m_particleMod = IniHelper::GetValue("VortexAdvanced", "ParticleMod", true);
 
@@ -138,19 +133,18 @@ void TornadoMenu::Initialize() {
     m_sirenVolume = IniHelper::GetValue("Other", "SirenVolume", 1.0f);
     m_tornadoVolume = IniHelper::GetValue("Other", "TornadoVolume", 1.0f);
     m_easVolume = IniHelper::GetValue("Other", "EasVolume", 1.0f);
-    m_lodDistance = IniHelper::GetValue("Other", "LodDistance", 500.0f);
     m_drawBlip = IniHelper::GetValue("Other", "AddBlip", true);
 
-    m_intStep = XmlHelper::GetInt("MenuConfig.General.IntStep", 5);
-    m_floatStep = XmlHelper::GetFloat("MenuConfig.General.FloatStep", 0.1f);
+    m_intStep = XmlHelper::GetInt("MenuConfig.General.integer_step", 5);
+    m_floatStep = XmlHelper::GetFloat("MenuConfig.General.float_step", 0.1f);
 
     // Keybinds
     m_toggleKey = StringToKey(IniHelper::GetValue("KeyBinds", "ToggleMenu", "F5"));
     m_tornadoHotkey = StringToKey(IniHelper::GetValue("KeyBinds", "ToggleTornado", "F6"));
 
     // UI Settings
-    m_menuX = XmlHelper::GetFloat("MenuConfig.Position.X", 0.15f);
-    m_menuY = XmlHelper::GetFloat("MenuConfig.Position.Y", 0.1f);
+    m_menuX = XmlHelper::GetFloat("MenuConfig.Layout.horizontal_position", 0.15f);
+    m_menuY = XmlHelper::GetFloat("MenuConfig.Layout.vertical_position", 0.1f);
 
     // Read XML Styles
     m_titleBoxColor = XmlHelper::GetColor("MenuConfig.Frame.TitleBox", { 184, 162, 57, 255 });
@@ -205,8 +199,8 @@ void TornadoMenu::SetupMenus() {
     main.items.push_back(MenuItem("Teleport to Tornado", []() { TeleportToTornado(); }));
     main.items.push_back(MenuItem("Tornado Settings", 1));
     main.items.push_back(MenuItem("General Settings", 2));
-    main.items.push_back(MenuItem("Sound Options", 4));
-    main.items.push_back(MenuItem("Menu Customization", 3));
+    main.items.push_back(MenuItem("Sound Options", 4)); // Index 4 = Sound Options submenu
+    main.items.push_back(MenuItem("Menu Customization", 3)); // Index 3 = Menu Settings submenu
     m_submenus.push_back(main);
 
     // Tornado Settings (Index 1) - Consolidates all legitimate settings from .ini
@@ -256,7 +250,7 @@ void TornadoMenu::SetupMenus() {
     tornado.items.push_back(MenuItem("Spawn In-Front", &m_spawnInFront, []() {
         IniHelper::WriteValue("Vortex", "SpawnInFront", m_spawnInFront ? "true" : "false");
         }));
-    tornado.items.push_back(MenuItem("Tornado Max Distance", &m_tornadoMaxDistance, 200.0f, 2000.0f, 50.0f, []() {
+    tornado.items.push_back(MenuItem("Tornado Max Distance", &m_tornadoMaxDistance, 50.0f, 2000.0f, 50.0f, []() {
         IniHelper::WriteValue("Vortex", "TornadoMaxDistance", std::to_string(m_tornadoMaxDistance));
         }));
 
@@ -272,12 +266,6 @@ void TornadoMenu::SetupMenus() {
         }));
     tornado.items.push_back(MenuItem("Cloud Top Enabled", &m_cloudTopEnabled, []() {
         IniHelper::WriteValue("VortexAdvanced", "CloudTopEnabled", m_cloudTopEnabled ? "true" : "false");
-        }));
-    tornado.items.push_back(MenuItem("Cloud Top Particles Enabled", &m_cloudTopParticlesEnabled, []() {
-        IniHelper::WriteValue("VortexAdvanced", "CloudTopParticlesEnabled", m_cloudTopParticlesEnabled ? "true" : "false");
-        }));
-    tornado.items.push_back(MenuItem("Surface Detection Enabled", &m_surfaceDetectionEnabled, []() {
-        IniHelper::WriteValue("VortexAdvanced", "SurfaceDetectionEnabled", m_surfaceDetectionEnabled ? "true" : "false");
         }));
     tornado.items.push_back(MenuItem("Use Internal Pool", &m_useInternalPool, []() {
         IniHelper::WriteValue("VortexAdvanced", "UseInternalPool", m_useInternalPool ? "true" : "false");
@@ -299,9 +287,6 @@ void TornadoMenu::SetupMenus() {
         }));
     general.items.push_back(MenuItem("Affect Player", &m_affectPlayer, []() {
         IniHelper::WriteValue("Other", "AffectPlayer", m_affectPlayer ? "true" : "false");
-        }));
-    general.items.push_back(MenuItem("LOD Distance", &m_lodDistance, 100.0f, 2000.0f, m_floatStep, []() {
-        IniHelper::WriteValue("Other", "LodDistance", std::to_string(m_lodDistance));
         }));
     general.items.push_back(MenuItem("Add Blip", &m_drawBlip, []() {
         IniHelper::WriteValue("Other", "AddBlip", m_drawBlip ? "true" : "false");
@@ -330,24 +315,24 @@ void TornadoMenu::SetupMenus() {
         }));
     m_submenus.push_back(general);
 
-    // Menu Settings (Index 5)
+    // Menu Settings (Index 4)
     Submenu menuSettings;
     menuSettings.title = "TornadoV Menu Settings";
     menuSettings.subtitle = "Menu Settings";
 
     menuSettings.items.push_back(MenuItem("Menu X", &m_menuX, 0.0f, 1.0f, m_pixelX, []() {
-        XmlHelper::WriteValue("MenuConfig.Position.X", std::to_string(m_menuX));
+        XmlHelper::WriteValue("MenuConfig.Layout.horizontal_position", std::to_string(m_menuX));
         }));
     menuSettings.items.push_back(MenuItem("Menu Y", &m_menuY, 0.0f, 1.0f, m_pixelY, []() {
-        XmlHelper::WriteValue("MenuConfig.Position.Y", std::to_string(m_menuY));
+        XmlHelper::WriteValue("MenuConfig.Layout.vertical_position", std::to_string(m_menuY));
         }));
 
     menuSettings.items.push_back(MenuItem("Int Step", &m_intStep, 1, 100, 1, []() {
-        XmlHelper::WriteValue("MenuConfig.General.IntStep", std::to_string(m_intStep));
+        XmlHelper::WriteValue("MenuConfig.General.integer_step", std::to_string(m_intStep));
         SetupMenus();
         }));
     menuSettings.items.push_back(MenuItem("Float Step", &m_floatStep, 0.01f, 5.0f, 0.01f, []() {
-        XmlHelper::WriteValue("MenuConfig.General.FloatStep", std::to_string(m_floatStep));
+        XmlHelper::WriteValue("MenuConfig.General.float_step", std::to_string(m_floatStep));
         SetupMenus();
         }));
 
@@ -437,7 +422,7 @@ void TornadoMenu::SetupMenus() {
 
     m_submenus.push_back(menuSettings);
 
-    // Sound Options (Index 4)
+    // Sound Options (Index 3)
     Submenu sound;
     sound.title = "TornadoV Sound Settings";
     sound.subtitle = "Sound Options";
@@ -859,6 +844,14 @@ void TornadoMenu::SpawnTornado() {
         return;
     }
 
+    if (!g_Factory) {
+        Logger::Error("Menu: g_Factory is null!");
+        if (m_notifications) {
+            IniHelper::ShowNotification("~r~Factory not initialized. Cannot spawn tornado.");
+        }
+        return;
+    }
+
     if (g_Factory->GetActiveVortexCount() > 0) {
         Logger::Log("Menu: Already a tornado active, multi-vortex disabled.");
         return;
@@ -875,16 +868,19 @@ void TornadoMenu::SpawnTornado() {
 
     Vector3 spawnPos;
 
+    // Use spawn distance directly
+    float spawnDistance = m_tornadoSpawnDistance;
+
     if (m_spawnInFront) {
         // Spawn in front of player
         Vector3 forward = ENTITY::GET_ENTITY_FORWARD_VECTOR(playerPed);
-        spawnPos = MathEx::Add(playerPos, MathEx::Multiply(forward, m_tornadoSpawnDistance));
+        spawnPos = MathEx::Add(playerPos, MathEx::Multiply(forward, spawnDistance));
     }
     else {
         // Spawn at random position around player
         float angle = (float)rand() / RAND_MAX * 6.28318f;
-        spawnPos.x = playerPos.x + std::cos(angle) * m_tornadoSpawnDistance;
-        spawnPos.y = playerPos.y + std::sin(angle) * m_tornadoSpawnDistance;
+        spawnPos.x = playerPos.x + std::cos(angle) * spawnDistance;
+        spawnPos.y = playerPos.y + std::sin(angle) * spawnDistance;
         spawnPos.z = playerPos.z;
     }
 

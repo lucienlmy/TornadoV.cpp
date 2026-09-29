@@ -64,7 +64,9 @@ void AudioManager::UpdateListener(float x, float y, float z, float lookX, float 
 }
 
 void AudioManager::Update3DSound(unsigned int handle, float x, float y, float z) {
-    m_soloud.set3dSourceParameters(handle, x, y, z);
+    if (m_soloud.isValidVoiceHandle(handle)) {
+        m_soloud.set3dSourceParameters(handle, x, y, z);
+    }
 }
 
 void AudioManager::SetVolume(unsigned int handle, float volume) {

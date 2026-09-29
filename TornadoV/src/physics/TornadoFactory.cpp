@@ -43,9 +43,9 @@ TornadoVortex* TornadoFactory::CreateVortex(Vector3 position) {
     }
 
     float groundZ;
-    GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(position.x, position.y, 1000.0f, &groundZ, false);
+    bool groundFound = GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(position.x, position.y, 1000.0f, &groundZ, false);
     
-    if (groundZ < -1000.0f || std::isnan(groundZ)) {
+    if (!groundFound || groundZ < -1000.0f || std::isnan(groundZ)) {
         groundZ = position.z;
     }
 
@@ -80,9 +80,10 @@ TornadoVortex* TornadoFactory::CreateVortex(Vector3 position) {
 
     TornadoVortex* ptr = tVortex.get();
     m_activeVortexList.push_back(std::move(tVortex));
+    Logger::Log("Factory: Vortex added to active list. Total active: " + std::to_string(m_activeVortexList.size()));
 
     // Play Global Sounds (2D) if not already playing
-    if (TornadoMenu::m_enableSirens || (TornadoMenu::m_enableEAS && m_easHandle == 0)) {
+    if ((TornadoMenu::m_enableEAS && m_easHandle == 0) || (TornadoMenu::m_enableSirens && m_sirenHandle == 0)) {
         if (TornadoMenu::m_enableEAS && m_easHandle == 0) {
             m_easHandle = AudioManager::Get().Play2D("eas_beeps", TornadoMenu::m_easVolume, false);
         }
@@ -142,7 +143,7 @@ void TornadoFactory::OnUpdate(int gameTime) {
             Vector3 playerPos = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), true);
             float angle = (float)rand() / RAND_MAX * 6.28318f;
             
-            // Use TornadoSpawnDistance setting instead of hardcoded 200-400 range
+            // Use TornadoSpawnDistance setting with variation
             float baseDistance = TornadoMenu::m_tornadoSpawnDistance;
             float distanceVariation = TornadoMenu::m_tornadoSpawnDistance * 0.5f; // 50% variation
             float dist = baseDistance + (float)rand() / RAND_MAX * distanceVariation;
@@ -167,6 +168,7 @@ void TornadoFactory::OnUpdate(int gameTime) {
 
     for (auto it = m_activeVortexList.begin(); it != m_activeVortexList.end();) {
         if ((*it)->DespawnRequested) {
+            Logger::Log("Factory: Removing vortex (DespawnRequested=true). Remaining: " + std::to_string(m_activeVortexList.size() - 1));
             (*it)->Dispose();
             it = m_activeVortexList.erase(it);
         } else {

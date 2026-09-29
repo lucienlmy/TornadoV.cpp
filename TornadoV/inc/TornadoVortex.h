@@ -54,7 +54,6 @@ private:
 
     Vector3 _position;
     Vector3 _destination;
-    bool _despawnRequested;
 
     float ForceScale = 3.0f;
     float InternalForcesDist = 5.0f;
@@ -69,7 +68,9 @@ private:
     int _lastVarCacheTime;
 
     int _updateFrameCounter;
+    int _soundUpdateFrameCounter;
     static const int PARTICLE_UPDATE_INTERVAL = 2;
+    static const int SOUND_UPDATE_INTERVAL = 5;
     int MaxEntityCount = 200;
 
     // Helper for blip (not in C# but needed for SHV)

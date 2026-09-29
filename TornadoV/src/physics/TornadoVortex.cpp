@@ -12,10 +12,10 @@
 #include <random>
 
 TornadoVortex::TornadoVortex(Vector3 initialPosition, bool neverDespawn)
-    : _position(initialPosition), _destination({ 0.0f, 0, 0.0f, 0, 0.0f, 0 }), _despawnRequested(false),
-    m_blip(0), _updateFrameCounter(0), m_soundHandle(0)
+    : _position(initialPosition), _destination({ 0.0f, 0, 0.0f, 0, 0.0f, 0 }), m_blip(0), _updateFrameCounter(0), _soundUpdateFrameCounter(0), m_soundHandle(0)
 {
     Position = initialPosition;
+    DespawnRequested = false;
     _createdTime = GAMEPLAY::GET_GAME_TIMER();
 
     static std::mt19937 gen(std::random_device{}());
@@ -66,7 +66,8 @@ void TornadoVortex::ChangeDestination(bool trackToPlayer) {
         }
 
         float groundZ;
-        if (GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(_destination.x, _destination.y, 1000.0f, &groundZ, false))
+        bool groundFound = GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(_destination.x, _destination.y, 1000.0f, &groundZ, false);
+        if (groundFound && groundZ > -1000.0f && !std::isnan(groundZ))
             _destination.z = groundZ - 10.0f;
 
         Vector3 outPos;
@@ -86,7 +87,7 @@ void TornadoVortex::ChangeDestination(bool trackToPlayer) {
 void TornadoVortex::Build() {
     Logger::Log("Vortex: Build starting...");
 
-    float radius = IniHelper::GetValue("Vortex", "VortexRadius", 9.4f);
+    float radius = TornadoMenu::m_vortexRadius;
     int   particleCount = IniHelper::GetValue("VortexAdvanced", "ParticlesPerLayer", 9);
     int   maxLayers = IniHelper::GetValue("VortexAdvanced", "MaxParticleLayers", 48);
     std::string particleAsset = IniHelper::GetValue("VortexAdvanced", "ParticleAsset", std::string("core"));
@@ -255,6 +256,12 @@ void TornadoVortex::UpdatePulledEntities(int gameTime, float maxDistanceDelta) {
             ReleaseEntity(key);
             continue;
         }
+        
+        // Prevent negative release distance
+        if (maxDistanceDelta < 13.0f) {
+            ReleaseEntity(key);
+            continue;
+        }
 
         Vector3 targetPos = { _position.x + value.xBias, 0, _position.y + value.yBias, 0, pos.z, 0 };
         Vector3 dirVec = MathEx::Subtract(targetPos, pos);
@@ -336,28 +343,36 @@ void TornadoVortex::UpdatePulledEntities(int gameTime, float maxDistanceDelta) {
 }
 
 void TornadoVortex::OnUpdate(int gameTime) {
-    if (_lifeSpan > 0 && gameTime - _createdTime > _lifeSpan)
-        _despawnRequested = true;
+    if (_lifeSpan > 0 && gameTime - _createdTime > _lifeSpan) {
+        Logger::Log("Vortex: Despawn requested (lifespan expired)");
+        DespawnRequested = true;
+    }
 
     if (TornadoMenu::m_movementEnabled) {
-        if ((_destination.x == 0 && _destination.y == 0) || MathEx::Distance(_position, _destination) < 15.0f)
-            ChangeDestination(false);
-
         Vector3 playerPos = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), true);
-        if (MathEx::Distance(_position, playerPos) > 200.0f)
+        
+        // Change destination if tornado is too far from player
+        if (MathEx::Distance(_position, playerPos) > TornadoMenu::m_tornadoMaxDistance * 0.8f) {
             ChangeDestination(true);
+        }
+        
+        if ((_destination.x == 0 && _destination.y == 0) || MathEx::Distance(_position, _destination) < 15.0f)
+            ChangeDestination(TornadoMenu::m_followPlayer);
 
         Vector3 vTarget = MathEx::MoveTowards(_position, _destination, TornadoMenu::m_moveSpeedScale * 0.287f);
         _position = MathEx::Lerp(_position, vTarget, GAMEPLAY::GET_FRAME_TIME() * 20.0f);
     }
 
     Position = _position;
-    DespawnRequested = _despawnRequested;
 
+    _soundUpdateFrameCounter++;
     if (m_soundHandle != 0) {
         if (TornadoMenu::m_enableTornadoSound) {
-            AudioManager::Get().Update3DSound(m_soundHandle, _position.x, _position.y, _position.z);
-            AudioManager::Get().SetVolume(m_soundHandle, TornadoMenu::m_tornadoVolume);
+            if (_soundUpdateFrameCounter >= SOUND_UPDATE_INTERVAL) {
+                AudioManager::Get().Update3DSound(m_soundHandle, _position.x, _position.y, _position.z);
+                AudioManager::Get().SetVolume(m_soundHandle, TornadoMenu::m_tornadoVolume);
+                _soundUpdateFrameCounter = 0;
+            }
         }
         else {
             AudioManager::Get().Stop(m_soundHandle);
